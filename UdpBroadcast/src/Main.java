@@ -10,7 +10,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Random;
 import java.util.TreeSet;
+
+import javax.swing.JFrame;
+import javax.swing.JTextArea;
 
 public class Main {
 
@@ -46,10 +50,11 @@ public class Main {
 		private void removeAllUnused() {
 			long currentTime = System.currentTimeMillis();
 			while (messages.size() > 0) {
-				long last = messages.pollFirst();
+				long last = messages.getFirst();
 				if (last > currentTime - 1000 * SECONDS_WAIT) {
-					messages.add(last);
 					break;
+				} else {
+					messages.pollFirst();
 				}
 			}
 		}
@@ -179,7 +184,8 @@ public class Main {
 			last++;
 		}
 		String name = new String(subArray(message, 10, last));
-		String sIp = ip.toString().substring(1);
+		String sIp = (ip.toString().indexOf('/') == -1 ? ip.toString() : ip
+				.toString().substring(ip.toString().indexOf('/') + 1));
 		synchronized (allConnections) {
 			for (Connection c : allConnections) {
 				if (c.ip.equals(sIp)) {
@@ -209,6 +215,15 @@ public class Main {
 	static ArrayList<Connection> allConnections = new ArrayList<>();
 
 	private static void printInformation() {
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("Upd Example");
+		frame.setSize(800, 600);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+		JTextArea textArea = new JTextArea();
+		frame.add(textArea);
+		textArea.setEditable(false);
 		while (true) {
 			synchronized (allConnections) {
 				for (int i = 0; i < allConnections.size(); i++) {
@@ -220,14 +235,13 @@ public class Main {
 					}
 				}
 				Collections.sort(allConnections);
-				System.out.println("---------------------------");
+				textArea.setText("some statistics:\n");
 				long currentTime = System.currentTimeMillis();
 				for (Connection c : allConnections) {
-					System.out.println(c.ip + " " + c.mac + " " + c.name + " "
-							+ (currentTime - c.messages.getLast()) + "ms last; "
-							+ c.lost + " lost");
+					textArea.append(c.ip + " " + c.mac + " " + c.name + " "
+							+ (currentTime - c.messages.getLast())
+							+ "ms last; " + c.lost + " lost");
 				}
-				System.out.println("---------------------------");
 			}
 
 			try {
