@@ -49,7 +49,7 @@ public class Main {
 				for (Connection c : allConnections) {
 					textArea.append(c.ip + " " + c.mac + " " + c.name + " "
 							+ (currentTime - c.messages.getLast())
-							+ "ms last; " + c.lost + " lost");
+							+ "ms last; " + c.lost + " lost\n");
 				}
 			}
 
